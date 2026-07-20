@@ -1,0 +1,38 @@
+.home-page {
+  min-height: 100vh;
+  padding: 40rpx 32rpx;
+  box-sizing: border-box;
+  position: relative;
+
+  .slogan {
+    display: block;
+    font-size: 30rpx;
+    color: #8a8175;
+    transform: rotate(-1deg);
+    margin-bottom: 40rpx;
+  }
+
+  .card-list {
+    .empty-tip {
+      margin-top: 200rpx;
+      text-align: center;
+      color: #b0a894;
+      font-size: 28rpx;
+    }
+  }
+
+  .add-btn {
+    position: fixed;
+    right: 48rpx;
+    bottom: 60rpx;
+    width: 100rpx;
+    height: 100rpx;
+    line-height: 96rpx;
+    border-radius: 50%;
+    background: #fbf7ec;
+    color: #2b2620;
+    font-size: 56rpx;
+    padding: 0;
+    text-align: center;
+  }
+}

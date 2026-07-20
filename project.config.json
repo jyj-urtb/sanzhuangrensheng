@@ -1,0 +1,21 @@
+{
+  "miniprogramRoot": "dist/",
+  "projectname": "renshengluanma",
+  "description": "反秩序手帐小程序 - 人生乱码",
+  "appid": "wxd84f65de0521d810",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "minified": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "condition": {}
+}

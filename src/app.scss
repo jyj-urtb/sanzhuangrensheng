@@ -1,0 +1,11 @@
+/* 全局样式 —— 反秩序手帐基调：暖旧纸色、非精致 */
+page {
+  background-color: #f4efe4;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  color: #2b2620;
+}
+
+/* 拟物阴影通用类：纸张/贴纸的外阴影 */
+.paper-shadow {
+  box-shadow: 4px 6px 14px rgba(60, 50, 30, 0.28);
+}
