@@ -1,0 +1,74 @@
+page { background: #f0f0f0; }
+
+.create-page {
+  min-height: 100vh;
+  background: #f0f0f0;
+  position: relative;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx 20rpx;
+
+  .back { font-size: 60rpx; color: #2b2620; width: 60rpx; line-height: 1; }
+  .title { font-size: 36rpx; font-weight: bold; color: #2b2620; }
+  .placeholder { width: 60rpx; }
+}
+
+.paper-scroll {
+  height: calc(100vh - 260rpx);
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+
+.section-label {
+  display: block;
+  font-size: 30rpx;
+  color: #6a6258;
+  margin: 24rpx 0 20rpx;
+}
+
+.paper-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+
+  .paper-thumb {
+    width: calc((100% - 72rpx) / 4);   /* 4 列 */
+    height: 200rpx;
+    border-radius: 6rpx;
+    overflow: hidden;
+    box-shadow: 2rpx 4rpx 10rpx rgba(80, 70, 50, 0.22);
+    border: 4rpx solid transparent;
+    box-sizing: border-box;
+    background: #fff;
+
+    &.active {
+      border-color: #2b2620;
+    }
+
+    .thumb-img { width: 100%; height: 100%; display: block; }
+  }
+}
+
+.bottom-space { height: 60rpx; }
+
+.create-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 20rpx 40rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #f0f0f0;
+
+  .create-btn {
+    height: 92rpx;
+    line-height: 92rpx;
+    text-align: center;
+    background: #2b2620;
+    color: #f4efe4;
+    font-size: 34rpx;
+    letter-spacing: 6rpx;
+    border-radius: 8rpx;
+  }
+}

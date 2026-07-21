@@ -1,0 +1,9 @@
+{
+  "name": "uploadfonts",
+  "version": "1.0.0",
+  "description": "一次性上传字体到云存储",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

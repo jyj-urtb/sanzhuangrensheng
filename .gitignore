@@ -1,0 +1,25 @@
+# deps
+node_modules/
+cloudfunctions/*/node_modules/
+
+# build output
+dist/
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# taro cache
+.temp/
+.rn_temp/
+.swc/
+
+# env / secrets —— 绝不提交密钥
+.env
+.env.local

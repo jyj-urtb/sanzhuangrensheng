@@ -1,0 +1,447 @@
+page { background: #F6F6F6; }
+
+.editor-page {
+  min-height: 100vh;
+  height: 100vh;
+  background: #F6F6F6;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* 顶部栏：返回 + 菜单 */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx 8rpx;
+
+  .round-btn {
+    width: 76rpx;
+    height: 76rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2rpx 3rpx 10rpx rgba(60, 50, 30, 0.22);
+  }
+  .back-btn {
+    background: #ffffff;
+    .chev { font-size: 46rpx; color: #2b2620; line-height: 1; margin-top: -4rpx; }
+  }
+  .menu-btn {
+    background: #ecd9a8;
+    .dots { font-size: 44rpx; color: #2b2620; line-height: 1; }
+  }
+}
+
+/* 右上角下拉菜单 */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 32rpx;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+  min-width: 200rpx;
+  overflow: hidden;
+}
+
+.menu-item {
+  padding: 28rpx 40rpx;
+  font-size: 28rpx;
+  color: #333;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  transition: background 0.2s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &.delete {
+    color: #ff4444;
+  }
+}
+
+/* 画布区 */
+.canvas-area {
+  flex: 1;
+  position: relative;
+  margin: 0 24rpx 12rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部功能贴纸：靠中、放大、加阴影，下沿被纸张盖住 */
+.top-stickers {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 180rpx;
+  margin-bottom: -70rpx;
+
+  .sticker-btn {
+    height: 260rpx;
+    width: 280rpx;
+    filter: drop-shadow(3rpx 6rpx 8rpx rgba(60, 50, 30, 0.35));
+    transition: transform 0.22s ease, filter 0.22s ease;
+  }
+  .collage-sticker { transform: rotate(-4deg) scale(0.95); margin-right: 5rpx; }
+  .draw-sticker { transform: rotate(3deg); margin-left: 5rpx; }
+
+  /* 当前在用的功能：对应贴纸浮现（上浮+放大+阴影加深+置顶） */
+  .collage-sticker.active {
+    transform: rotate(-4deg) scale(1.12) translateY(-12rpx);
+    z-index: 5;
+    filter: drop-shadow(4rpx 8rpx 12rpx rgba(60, 50, 30, 0.5));
+  }
+  .draw-sticker.active {
+    transform: rotate(3deg) scale(1.12) translateY(-12rpx);
+    z-index: 5;
+    filter: drop-shadow(4rpx 8rpx 12rpx rgba(60, 50, 30, 0.5));
+  }
+}
+
+/* 纸张：撑满剩余区域，层级在贴纸之上 */
+.canvas-wrap {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  margin-top: -10rpx;
+  border-radius: 6rpx;
+  overflow: hidden;
+  box-shadow: 4rpx 8rpx 22rpx rgba(60, 50, 30, 0.28);
+
+  .canvas-paper {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+/* 拼贴诗贴在纸上：紧凑左对齐成行，点击进编辑模式拖碎片 */
+.poem-layer {
+  position: absolute;
+  top: 30rpx;
+  left: 30rpx;
+  right: 30rpx;
+  bottom: 20rpx;
+  z-index: 5;
+}
+.poem-layer.editing {
+  z-index: 9;
+}
+.poem-layer.editing::before {
+  content: '';
+  position: absolute;
+  top: -10rpx; left: -10rpx; right: -10rpx; bottom: -10rpx;
+  border: 2rpx dashed rgba(80, 70, 50, 0.5);
+  border-radius: 12rpx;
+  background: rgba(255,255,255,0.06);
+}
+.poem-edit-done {
+  position: absolute;
+  right: 0;
+  bottom: -70rpx;
+  background: #ecd9a8;
+  color: #2b2620;
+  font-size: 26rpx;
+  padding: 12rpx 30rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 3rpx 10rpx rgba(0,0,0,0.2);
+}
+
+/* 编辑模式顶部完成条 */
+.poem-edit-bar {
+  position: fixed;
+  left: 40rpx;
+  right: 40rpx;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(43, 38, 32, 0.9);
+  border-radius: 44rpx;
+  padding: 16rpx 20rpx 16rpx 32rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.25);
+
+  .pe-hint {
+    font-size: 26rpx;
+    color: #f2ede0;
+  }
+  .pe-done {
+    background: #ecd9a8;
+    color: #2b2620;
+    font-size: 28rpx;
+    padding: 12rpx 40rpx;
+    border-radius: 40rpx;
+  }
+}
+.poem-title-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24rpx;
+}
+.poem-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-bottom: 28rpx;
+}
+.pfrag {
+  position: relative;
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  margin-right: 15rpx;
+  border-radius: 2rpx;
+  box-shadow: 1rpx 2rpx 4rpx rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+
+  .pfrag-tex {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+    opacity: 0.26;
+    mix-blend-mode: multiply;
+  }
+  .pfrag-text {
+    position: relative;
+    z-index: 1;
+    font-size: 28rpx;
+    white-space: nowrap;
+    letter-spacing: 1rpx;
+  }
+}
+.pfrag-title {
+  background: #efe9dc;
+}
+.pfrag-text.ptitle {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2b2620;
+}
+
+/* 照片贴纸贴在纸上 */
+.photo-wrap {
+  position: absolute;
+  width: 280rpx;
+  z-index: 6;
+}
+.photo-wrap.selected {
+  z-index: 8;
+  transform: scale(1.04);
+}
+.photo-on-paper {
+  width: 100%;
+  display: block;
+  filter: drop-shadow(3rpx 5rpx 10rpx rgba(60, 50, 30, 0.4));
+}
+.photo-wrap.selected .photo-on-paper {
+  filter: drop-shadow(4rpx 8rpx 14rpx rgba(60, 50, 30, 0.55));
+}
+
+/* 涂鸦层（盖在纸上） */
+.doodle-on-paper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* 书写文本贴在纸上 */
+.text-on-paper {
+  position: absolute;
+  z-index: 7;
+  max-width: 70%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.text-on-paper.selected {
+  z-index: 9;
+}
+.text-on-paper.selected::after {
+  content: '';
+  position: absolute;
+  top: -10rpx; left: -10rpx; right: -10rpx; bottom: -10rpx;
+  border: 2rpx dashed rgba(80,70,50,0.5);
+  border-radius: 10rpx;
+  pointer-events: none;
+}
+.tx-char {
+  display: inline-block;
+  color: #2b2620;
+  line-height: 1.5;
+  margin: 0 6rpx;
+}
+.tx-br {
+  width: 100%;
+  height: 0;
+}
+
+/* 书写编辑模式（方案B：透明输入 + 实时歪斜预览） */
+.text-editing {
+  position: absolute;
+  z-index: 20;
+  width: 60%;
+
+  .tx-stack {
+    position: relative;
+    min-height: 90rpx;
+  }
+  /* 上层：实时歪斜手写字（直接在纸上） */
+  .tx-preview {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    min-height: 90rpx;
+    pointer-events: none;
+
+    .tx-placeholder {
+      font-size: 40rpx;
+      color: rgba(43,38,32,0.35);
+    }
+  }
+  /* 下层：透明输入框（文字、光标全透明，只负责收字调键盘） */
+  .tx-input-invisible {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 90rpx;
+    z-index: 2;
+    font-size: 40rpx;
+    color: transparent;
+    caret-color: #2b2620;
+    background: transparent;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .tx-toolbar {
+    display: flex;
+    align-items: center;
+    margin-top: 16rpx;
+    background: rgba(43,38,32,0.92);
+    border-radius: 40rpx;
+    padding: 8rpx 8rpx 8rpx 16rpx;
+
+    .tx-fontrow {
+      flex: 1;
+      white-space: nowrap;
+      .tx-font {
+        display: inline-block;
+        font-size: 24rpx;
+        color: #f2ede0;
+        padding: 8rpx 20rpx;
+        margin-right: 8rpx;
+        border-radius: 30rpx;
+        &.on { background: #ecd9a8; color: #2b2620; }
+      }
+    }
+    .tx-ok {
+      flex-shrink: 0;
+      width: 60rpx; height: 60rpx;
+      border-radius: 50%;
+      background: #ecd9a8;
+      color: #2b2620;
+      font-size: 34rpx;
+      display: flex; align-items: center; justify-content: center;
+      margin-left: 8rpx;
+    }
+  }
+}
+
+/* ============================================
+   底部工具栏 —— 等比例缩放，不会变形
+   图片用 widthFix：只设 width，高度按原图比例自动算。
+   每个工具 2 个参数：
+     width         = 工具大小（改这个就是等比例放大/缩小）
+     margin-bottom = 往下沉多少（负值越大→露出越少；0/正值→完整露出）
+   改完 Ctrl+S 保存自动刷新。
+   ============================================ */
+.toolbar-card {
+  position: relative;
+  z-index: 3;
+  margin: -40rpx 54rpx 0;
+  background: #ffffff;
+  border-radius: 80rpx 80rpx 0 0;
+  box-shadow: 2rpx -2rpx 16rpx rgba(60, 50, 30, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 150rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  overflow: visible;
+
+  .tool {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin: 0 -60rpx;
+    transition: transform 0.2s ease;
+
+    .tool-icon {
+      filter: drop-shadow(3rpx 5rpx 6rpx rgba(60, 50, 30, 0.4));
+      display: block;
+    }
+  }
+  /* 可用的工具(照片/书写)z-index 抬高，保证能点到；开发中的放下面 */
+  .tool-paint { z-index: 1; }
+  .tool-photo { z-index: 9; }
+  .tool-pen { z-index: 10; }
+  .tool-match { z-index: 1; }
+
+  /* 当前在用的工具：上提浮起 */
+  .tool.tool-active {
+    transform: translateY(-22rpx);
+    z-index: 20;
+  }
+
+  /* 毛笔（放大 1.5 倍，上下翻转纠正方向） */
+  .tool-paint .tool-icon {
+    width: 330rpx;
+    margin-bottom: -275rpx;
+    transform: scaleY(-1);
+  }
+  /* 照片贴纸（完整露出，放大 1.3 倍，左移10、下移10） */
+  .tool-photo .tool-icon {
+    width: 310rpx;
+    margin-bottom: 0rpx;
+    margin-left: -10rpx;
+  }
+  /* 钢笔（放大 1.5 倍，上下翻转纠正方向，左移10） */
+  .tool-pen .tool-icon {
+    width: 300rpx;
+    margin-bottom: -65rpx;
+    margin-left: -10rpx;
+    transform: scaleY(-1);
+  }
+  /* 火柴（放大 1.2 倍，上移10、左移） */
+  .tool-match .tool-icon {
+    width: 216rpx;
+    margin-bottom: -50rpx;
+    margin-left: -50rpx;
+  }
+}

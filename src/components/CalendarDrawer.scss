@@ -1,0 +1,136 @@
+/* 从左滑出的日历抽屉 */
+.cal-drawer {
+  /* 宋体（衷线体）：标题粗、正文细 */
+  font-family: STSong, 'Songti SC', SimSun, serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85%;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: 6rpx 0 30rpx rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  transform: translateX(-100%);   /* 默认藏在左边屏幕外 */
+  transition: transform 0.32s ease;
+
+  &.open {
+    transform: translateX(0);      /* 滑入 */
+  }
+}
+
+.cal-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding-left: 44rpx;
+  padding-right: 36rpx;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 44rpx;
+
+  .title-wrap {
+    padding-left: 0;
+  }
+
+  .big-title {
+    display: block;
+    font-size: 44rpx;
+    font-weight: bold;
+    color: #2b2620;
+  }
+  .sub-title {
+    display: block;
+    font-size: 26rpx;
+    font-weight: 300;
+    color: #2b2620;
+    margin-top: 8rpx;
+  }
+  .close-arrow {
+    font-size: 60rpx;
+    color: #2b2620;
+    line-height: 52rpx;
+    padding: 0 8rpx;
+  }
+}
+
+.month-block {
+  margin-bottom: 54rpx;
+
+  .month-en {
+    display: block;
+    font-size: 34rpx;
+    font-weight: bold;
+    color: #2b2620;
+    letter-spacing: 3rpx;
+  }
+  .month-num {
+    display: block;
+    font-size: 22rpx;
+    font-weight: 300;
+    color: #6a6258;
+    margin: 4rpx 0 20rpx;
+  }
+
+  .week-row {
+    display: flex;
+    margin-bottom: 14rpx;
+    .week-cell {
+      flex: 1;
+      text-align: center;
+      font-size: 22rpx;
+      font-weight: 300;
+      color: #6a6258;
+      &.weekend { color: #c0392b; }
+    }
+  }
+
+  .days-grid {
+    display: flex;
+    flex-wrap: wrap;
+    .day-cell {
+      width: 14.285%;
+      height: 82rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .day-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .day-num {
+          font-size: 28rpx;
+          font-weight: 300;
+          color: #2b2620;
+          &.weekend { color: #c0392b; }
+        }
+        .mark.check {
+          position: absolute;
+          width: 56rpx;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+        }
+        .mark.circle {
+          position: absolute;
+          width: 54rpx;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
+
+.bottom-space { height: 80rpx; }

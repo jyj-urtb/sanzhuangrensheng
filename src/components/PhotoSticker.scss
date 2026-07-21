@@ -1,0 +1,105 @@
+.photo-sticker-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 400;
+  background: rgba(255, 255, 255, 0.55);   /* 半透明白 */
+  backdrop-filter: blur(40rpx);
+  -webkit-backdrop-filter: blur(40rpx);
+  display: flex;
+  flex-direction: column;
+}
+
+.ps-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 100rpx 40rpx 10rpx;
+
+  .ps-back {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42rpx;
+    background: #2b2620;
+    color: #fff;
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.18);
+  }
+}
+
+.ps-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10rpx 20rpx;
+
+  .ps-canvas {
+    width: 640rpx;
+    height: 800rpx;
+    background: rgba(255,255,255,0.35);
+    border-radius: 16rpx;
+  }
+
+  .ps-pick {
+    width: 500rpx;
+    height: 640rpx;
+    border: 3rpx dashed #b8ad95;
+    border-radius: 16rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34rpx;
+    color: #8a8175;
+    background: rgba(255,255,255,0.3);
+  }
+}
+
+.ps-tip {
+  text-align: center;
+  font-size: 28rpx;
+  color: #6a6258;
+  padding: 8rpx 0 4rpx;
+}
+
+/* 底部工具栏：半透明磨砂条 + 圆按钮，风格统一 */
+.ps-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  margin: 20rpx 60rpx calc(60rpx + env(safe-area-inset-bottom));
+  padding: 20rpx 30rpx;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1rpx solid rgba(255,255,255,0.6);
+  border-radius: 60rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.1);
+
+  .ps-tool {
+    font-size: 36rpx;
+    color: #2b2620;
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ps-confirm {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: 50%;
+    background: #ecd9a8;
+    color: #2b2620;
+    font-size: 50rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4rpx 14rpx rgba(0,0,0,0.18);
+    &.busy { opacity: 0.5; }
+  }
+}

@@ -1,0 +1,28 @@
+/* 全局样式 —— 反秩序手帐基调：暖旧纸色、非精致 */
+
+/* 全局默认字体：宋体（衬线体）。
+   例外：日记本/纸张上用户手写的字，用各自的手写字体，单独在对应组件里覆盖。 */
+page,
+view,
+text,
+button,
+input,
+textarea,
+scroll-view {
+  font-family: STSong, 'Songti SC', SimSun, 'Noto Serif SC', serif;
+}
+
+page {
+  background-color: #F6F6F6;
+  color: #2b2620;
+}
+
+/* 拟物阴影通用类：纸张/贴纸的外阴影 */
+.paper-shadow {
+  box-shadow: 4px 6px 14px rgba(60, 50, 30, 0.28);
+}
+
+/* 手写字例外：需要用手写体的元素加这个类，避免被全局宋体覆盖 */
+.handwriting {
+  font-family: inherit;   /* 由具体组件指定手写字体 */
+}

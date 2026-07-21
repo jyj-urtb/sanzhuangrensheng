@@ -1,0 +1,64 @@
+.write-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 350;
+  display: flex;
+  align-items: flex-end;
+}
+
+.write-panel {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(40rpx);
+  -webkit-backdrop-filter: blur(40rpx);
+  border-radius: 32rpx 32rpx 0 0;
+  border-top: 1rpx solid rgba(255,255,255,0.6);
+  padding: 28rpx 32rpx calc(28rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -8rpx 30rpx rgba(0,0,0,0.15);
+}
+
+.write-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+
+  .wh-x { font-size: 44rpx; color: #6a6258; width: 60rpx; }
+  .wh-title { font-size: 32rpx; font-weight: bold; color: #2b2620; }
+  .wh-done {
+    font-size: 40rpx; color: #2b2620; width: 60rpx; text-align: right;
+  }
+}
+
+.write-input {
+  width: 100%;
+  min-height: 200rpx;
+  background: rgba(255,255,255,0.75);
+  border: 1rpx solid rgba(120,110,90,0.2);
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  font-size: 34rpx;
+  line-height: 1.7;
+  box-sizing: border-box;
+}
+
+.font-list {
+  white-space: nowrap;
+  margin-top: 22rpx;
+
+  .font-item {
+    display: inline-block;
+    padding: 14rpx 30rpx;
+    margin-right: 16rpx;
+    font-size: 30rpx;
+    color: #2b2620;
+    background: rgba(255,255,255,0.7);
+    border: 1rpx solid rgba(120,110,90,0.2);
+    border-radius: 40rpx;
+
+    &.active {
+      background: #2b2620;
+      color: #f2ede0;
+    }
+  }
+}
