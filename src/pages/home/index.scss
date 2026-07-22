@@ -97,6 +97,21 @@ page {
   height: 160rpx;
 }
 
+/* 空状态提示 */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 120rpx 40rpx;
+
+  .empty-text {
+    font-size: 28rpx;
+    color: #999;
+    text-align: center;
+    line-height: 1.6;
+  }
+}
+
 /* 日历抽屉半透明遮罩 */
 .cal-mask {
   position: fixed;

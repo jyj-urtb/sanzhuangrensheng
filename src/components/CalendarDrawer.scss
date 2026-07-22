@@ -134,3 +134,56 @@
 }
 
 .bottom-space { height: 80rpx; }
+
+/* 无标记日期点击弹窗 - 独立在全屏层 */
+.cal-prompt-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-prompt {
+  width: 80%;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 50rpx 40rpx 40rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.2);
+  text-align: center;
+
+  .prompt-text {
+    display: block;
+    font-size: 32rpx;
+    color: #2b2620;
+    line-height: 1.6;
+    margin-bottom: 40rpx;
+  }
+
+  .prompt-btns {
+    display: flex;
+    justify-content: center;
+    gap: 30rpx;
+
+    .prompt-btn {
+      padding: 20rpx 50rpx;
+      border-radius: 50rpx;
+      font-size: 28rpx;
+
+      &.later {
+        background: #e8e0cf;
+        color: #2b2620;
+      }
+
+      &.come {
+        background: #2b2620;
+        color: #f2ede0;
+      }
+    }
+  }
+}

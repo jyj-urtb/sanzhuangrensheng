@@ -1,33 +1,54 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
-import Taro, { useLoad } from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
-import { PAPERS, CARDS } from '../../constants/papers'
 import CalendarDrawer from '../../components/CalendarDrawer'
 import PaperSheet from '../../components/PaperSheet'
 import './index.scss'
 
 interface DiaryEntry {
-  id: string
+  _id: string
   date: string
   paperSrc: string
+  createdAt: string
 }
 
 export default function Home() {
   const [statusBarHeight, setStatusBarHeight] = useState(20)
   const [calOpen, setCalOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [entries, setEntries] = useState<DiaryEntry[]>([])
 
-  useLoad(() => {
+  useDidShow(() => {
     const info = Taro.getWindowInfo?.() || Taro.getSystemInfoSync()
     setStatusBarHeight(info.statusBarHeight || 20)
+    loadEntries()
   })
 
-  const entries: DiaryEntry[] = [
-    { id: 'e1', date: '7月12日', paperSrc: PAPERS[0].src },
-    { id: 'e2', date: '6月2日', paperSrc: PAPERS[5].src },
-    { id: 'e3', date: '3月1日', paperSrc: PAPERS[8].src },
-    { id: 'e4', date: '1月12日', paperSrc: CARDS[0].src }
-  ]
+  const loadEntries = async () => {
+    try {
+      const db = Taro.cloud.database()
+      const res = await db.collection('diary_entries')
+        .orderBy('createdAt', 'desc')
+        .limit(100)
+        .get()
+      console.log('加载的日记数据:', res.data)
+      setEntries(res.data as DiaryEntry[])
+      if (res.data.length > 0) {
+        Taro.showToast({
+          title: `加载了 ${res.data.length} 篇日记`,
+          icon: 'none',
+          duration: 2000
+        })
+      }
+    } catch (e: any) {
+      console.error('加载日记失败', e)
+      Taro.showToast({
+        title: '加载失败: ' + e.message,
+        icon: 'none',
+        duration: 3000
+      })
+    }
+  }
 
   const goProfile = () => Taro.navigateTo({ url: '/pages/profile/index' })
   const openEntry = (id: string) => Taro.navigateTo({ url: `/pages/editor/index?id=${id}` })
@@ -54,14 +75,24 @@ export default function Home() {
 
       {/* 日记纸条堆叠 */}
       <ScrollView scrollY className='strip-scroll'>
-        {entries.map(e => (
-          <View key={e.id} className='entry'>
-            <Text className='entry-date'>{e.date}</Text>
-            <View className='paper-strip' onClick={() => openEntry(e.id)}>
-              <Image className='paper-img' src={e.paperSrc} mode='aspectFill' />
-            </View>
+        {entries.length === 0 ? (
+          <View className='empty-state'>
+            <Text className='empty-text'>还没有日记，点击右下角 ＋ 开始创作</Text>
           </View>
-        ))}
+        ) : (
+          entries.map(e => {
+            const date = new Date(e.createdAt)
+            const dateStr = `${date.getMonth() + 1}月${date.getDate()}日`
+            return (
+              <View key={e._id} className='entry'>
+                <Text className='entry-date'>{dateStr}</Text>
+                <View className='paper-strip' onClick={() => openEntry(e._id)}>
+                  <Image className='paper-img' src={e.paperSrc} mode='aspectFill' />
+                </View>
+              </View>
+            )
+          })
+        )}
         <View className='scroll-bottom-space' />
       </ScrollView>
 

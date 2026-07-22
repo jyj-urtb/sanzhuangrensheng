@@ -22,6 +22,7 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
   const [showPalette, setShowPalette] = useState(false)
   const [busy, setBusy] = useState(false)
   const [eraser, setEraser] = useState(false)
+  const [brushSize, setBrushSize] = useState(2)
 
   const drawCtxRef = useRef<any>(null)
   const drawCanvasRef = useRef<any>(null)
@@ -33,6 +34,8 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
   // 笔画历史（撤回用）：每笔 = {color, eraser, points:[{x,y,w}]}
   const strokesRef = useRef<any[]>([])
   const curStrokeRef = useRef<any>(null)
+  const tipImgRef = useRef<any>(null)
+  const grainImgRef = useRef<any>(null)
 
   const initDraw = () => {
     const q = Taro.createSelectorQuery()
@@ -48,6 +51,16 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
       drawCtxRef.current = ctx
       drawCanvasRef.current = canvas
       sizeRef.current = { w, h }
+
+      // 加载笔刷形状
+      const tip = canvas.createImage()
+      tip.onload = () => { tipImgRef.current = tip }
+      tip.src = brushTip
+
+      // 加载颗粒纹理
+      const grain = canvas.createImage()
+      grain.onload = () => { grainImgRef.current = grain }
+      grain.src = brushGrain
     })
   }
 
@@ -63,16 +76,9 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
     drawingRef.current = true
     curStrokeRef.current = { color: colorRef.current, eraser: eraserRef.current, points: [{ x: t.x, y: t.y, w: 1 }] }
     
-    // 起笔：画一个尖锐的笔尖
+    // 起笔：从极细的笔尖开始
     if (!eraserRef.current) {
-      ctx.save()
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.fillStyle = colorRef.current
-      ctx.beginPath()
-      ctx.arc(t.x, t.y, 2, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.restore()
-      lastRef.current = { x: t.x, y: t.y, w: 2 }
+      lastRef.current = { x: t.x, y: t.y, w: 1 }
     } else {
       lastRef.current = { x: t.x, y: t.y, w: 30 }
     }
@@ -85,9 +91,9 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
     const dist = Math.sqrt(dx * dx + dy * dy)
     if (dist < 0.5) return
     const speed = dist
-    const pressure = eraserRef.current ? 1 : Math.min(1, 15 / (speed + 8))
-    const targetW = eraserRef.current ? 30 : (2 + pressure * 8)
-    const w = last.w + (targetW - last.w) * 0.3
+    const pressure = eraserRef.current ? 1 : Math.min(1, 8 / (speed + 4))
+    const targetW = eraserRef.current ? 36 : (brushSize + pressure * (brushSize * 5))
+    const w = last.w + (targetW - last.w) * 0.15
     ctx.save()
     ctx.lineCap = 'round'; ctx.lineJoin = 'round'
     ctx.lineWidth = w
@@ -99,38 +105,20 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
       ctx.quadraticCurveTo((last.x + t.x) / 2, (last.y + t.y) / 2, t.x, t.y)
       ctx.stroke()
     } else {
+      // 流畅线条 + 笔锋
       ctx.globalCompositeOperation = 'source-over'
       ctx.strokeStyle = colorRef.current
       ctx.beginPath()
       ctx.moveTo(last.x, last.y)
       ctx.quadraticCurveTo((last.x + t.x) / 2, (last.y + t.y) / 2, t.x, t.y)
       ctx.stroke()
-      
-      // 添加毛糙边缘效果
-      const steps = Math.max(2, Math.floor(dist / 3))
-      for (let i = 0; i < steps; i++) {
-        const frac = (i + 0.5) / steps
-        const px = last.x + dx * frac
-        const py = last.y + dy * frac
-        const angle = Math.atan2(dy, dx) + Math.PI / 2
-        const offsetDist = (Math.random() - 0.5) * w * 0.6
-        const ox = px + Math.cos(angle) * offsetDist
-        const oy = py + Math.sin(angle) * offsetDist
-        const dotW = w * (0.15 + Math.random() * 0.25)
-        ctx.beginPath()
-        ctx.arc(ox, oy, dotW, 0, Math.PI * 2)
-        ctx.fillStyle = colorRef.current
-        ctx.globalAlpha = 0.3 + Math.random() * 0.4
-        ctx.fill()
-      }
-      ctx.globalAlpha = 1
     }
     ctx.restore()
     lastRef.current = { x: t.x, y: t.y, w }
     if (curStrokeRef.current) curStrokeRef.current.points.push({ x: t.x, y: t.y, w })
   }
   const onEnd = () => {
-    // 收笔：添加尖锐的笔尖效果
+    // 收笔：沿着笔画方向逐渐变细，形成尖锐笔尖
     if (!eraserRef.current && curStrokeRef.current && curStrokeRef.current.points.length > 2) {
       const ctx = drawCtxRef.current
       const points = curStrokeRef.current.points
@@ -143,13 +131,13 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
         ctx.save()
         ctx.globalCompositeOperation = 'source-over'
         ctx.fillStyle = colorRef.current
-        // 画 3-4 个逐渐变小的圆，形成笔尖
-        for (let i = 0; i < 4; i++) {
-          const t = (i + 1) / 4
-          const x = last.x + (dx / len) * i * 3
-          const y = last.y + (dy / len) * i * 3
-          const radius = last.w * (1 - t) * 0.5
-          if (radius > 0.3) {
+        // 6 步逐渐变细，形成尖锐笔尖
+        for (let i = 0; i < 6; i++) {
+          const t = (i + 1) / 6
+          const x = last.x + (dx / len) * i * 4
+          const y = last.y + (dy / len) * i * 4
+          const radius = last.w * 0.5 * Math.pow(1 - t, 2)
+          if (radius > 0.2) {
             ctx.beginPath()
             ctx.arc(x, y, radius, 0, Math.PI * 2)
             ctx.fill()
@@ -320,12 +308,21 @@ export default function Doodle({ open, statusBarHeight, onClose, onGenerated }: 
         <View className='dd-btn' catchMove onClick={undo}>
           <Image src={undoIcon} className='btn-icon' mode='aspectFit' />
         </View>
-        <View className={`dd-btn ${eraser ? 'on' : ''}`} catchMove onClick={toggleEraser}>
+        <View className={`dd-btn ${eraser ? 'on' : ''}`} onClick={toggleEraser}>
           <Image src={eraserIcon} className='btn-icon' mode='aspectFit' />
         </View>
         <View className='dd-btn done' catchMove onClick={confirm}>
           <Image src={doneIcon} className='btn-icon' mode='aspectFit' />
         </View>
+      </View>
+
+      {/* 粗细选择 */}
+      <View className='dd-sizes'>
+        {[1, 2, 3, 5, 7].map(s => (
+          <View key={s} className={`dd-sz ${brushSize === s ? 'on' : ''}`} onClick={() => setBrushSize(s)}>
+            <View className='sz-dot' style={{ width: `${s * 8}rpx`, height: `${s * 8}rpx` }} />
+          </View>
+        ))}
       </View>
 
       {/* 涂鸦画布（透明，盖在纸上） */}
