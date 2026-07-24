@@ -98,7 +98,7 @@ export default function CalendarDrawer({ open, statusBarHeight, onClose }: Props
         <ScrollView scrollY className='cal-scroll' style={{ paddingTop: `${statusBarHeight + 30}px` }}>
           <View className='header'>
             <View className='title-wrap'>
-              <Text className='big-title'>人生乱套，我睡觉</Text>
+              <Text className='big-title'>散装的人生，是完整的我</Text>
               <Text className='sub-title'>随便写点 ✍️</Text>
             </View>
             <Text className='close-arrow' onClick={onClose}>›</Text>
