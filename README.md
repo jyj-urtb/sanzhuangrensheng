@@ -1,4 +1,4 @@
-# 人生乱码 · renshengluanma
+# 散装人生 · sanzhuangrensheng
 
 反秩序手帐小程序 —— "人生乱套我睡觉，随便写点 ✍️"
 

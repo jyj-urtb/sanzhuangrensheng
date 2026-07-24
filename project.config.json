@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "dist/",
-  "projectname": "renshengluanma",
-  "description": "反秩序手帐小程序 - 人生乱码",
+  "projectname": "sanzhuangrensheng",
+  "description": "反秩序手帐小程序 - 散装人生",
   "appid": "wxd84f65de0521d810",
   "setting": {
     "urlCheck": true,

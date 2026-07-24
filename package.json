@@ -1,8 +1,8 @@
 {
-  "name": "renshengluanma",
+  "name": "sanzhuangrensheng",
   "version": "0.1.0",
   "private": true,
-  "description": "反秩序手帐小程序 - 人生乱码",
+  "description": "反秩序手帐小程序 - 散装人生",
   "templateInfo": {
     "name": "default",
     "typescript": true,

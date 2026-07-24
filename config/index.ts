@@ -2,7 +2,7 @@ import devConfig from './dev'
 import prodConfig from './prod'
 
 const config = {
-  projectName: 'renshengluanma',
+  projectName: 'sanzhuangrensheng',
   date: '2026-7-20',
   designWidth: 750,
   deviceRatio: {
