@@ -3,6 +3,7 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
 import CalendarDrawer from '../../components/CalendarDrawer'
 import PaperSheet from '../../components/PaperSheet'
+import cameraIcon from '../../assets/icons/camera.png'
 import './index.scss'
 
 interface DiaryEntry {
@@ -58,6 +59,25 @@ export default function Home() {
     Taro.navigateTo({ url: `/pages/editor/index?paper=${paperId}` })
   }
 
+  const handlePhoto = async () => {
+    const res = await Taro.showModal({
+      title: '提示',
+      content: '照片中最好有较为明显的平面，或者您可以自行框选粘贴',
+      confirmText: '拍照',
+      cancelText: '选图'
+    })
+    try {
+      const r = await Taro.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: [res.confirm ? 'camera' : 'album']
+      })
+      Taro.navigateTo({ url: `/pages/editor/index?paper=photo&src=${encodeURIComponent(r.tempFilePaths[0])}` })
+    } catch (e) {
+      // 用户取消
+    }
+  }
+
   return (
     <View className='home-page'>
       {/* 顶部：左 ☰（开日历）右 👤 */}
@@ -96,9 +116,14 @@ export default function Home() {
         <View className='scroll-bottom-space' />
       </ScrollView>
 
-      {/* 右下角新建按钮 */}
-      <View className='add-btn' onClick={() => setSheetOpen(true)}>
-        <Text className='add-plus'>＋</Text>
+      {/* 右下角按钮组 */}
+      <View className='bottom-btns'>
+        <View className='photo-btn' onClick={handlePhoto}>
+          <Image className='photo-icon' src={cameraIcon} mode='aspectFit' />
+        </View>
+        <View className='add-btn' onClick={() => setSheetOpen(true)}>
+          <Text className='add-plus'>＋</Text>
+        </View>
       </View>
 
       {/* 左滑出日历抽屉 + 半透明遮罩 */}

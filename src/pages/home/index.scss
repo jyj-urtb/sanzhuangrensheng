@@ -120,22 +120,32 @@ page {
   z-index: 99;
 }
 
-/* 右下角圆形新建按钮 */
-.add-btn {
+/* 右下角按钮组 */
+.bottom-btns {
   position: fixed;
   right: 48rpx;
-  bottom: 70rpx;
-  width: 116rpx;
-  height: 116rpx;
+  bottom: 110rpx;
+  display: flex;
+  gap: 24rpx;
+}
+
+.photo-btn, .add-btn {
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 2rpx 4rpx 14rpx rgba(80, 70, 50, 0.3);
+  box-shadow: 2rpx 4rpx 14rpx rgba(80, 70, 50, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 
+  .photo-icon {
+    width: 48rpx;
+    height: 48rpx;
+  }
+
   .add-plus {
-    font-size: 68rpx;
+    font-size: 56rpx;
     color: #2b2620;
     line-height: 1;
     font-weight: 300;

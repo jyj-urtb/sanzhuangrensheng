@@ -251,12 +251,48 @@ page { background: #F6F6F6; }
   z-index: 8;
   transform: scale(1.04);
 }
+.photo-wrap.holding {
+  z-index: 8;
+  transform: scale(1.12);
+  transition: transform 0.15s ease;
+}
+.photo-wrap.deleting {
+  animation: popOut 0.35s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes popOut {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.25); opacity: 0.7; }
+  100% { transform: scale(0); opacity: 0; }
+}
 .photo-on-paper {
   width: 100%;
   display: block;
 }
 .photo-wrap.selected .photo-on-paper {
   /* 选中不加阴影了 */
+}
+
+/* 贴纸按住提示 */
+.hold-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 16rpx 32rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  pointer-events: none;
+  animation: hintFade 1.5s ease-out forwards;
+}
+@keyframes hintFade {
+  from { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* 贴纸编辑控件 */
@@ -268,7 +304,6 @@ page { background: #F6F6F6; }
   bottom: -30rpx;
   pointer-events: none;
   z-index: 10;
-  border: 2rpx dashed rgba(80, 70, 50, 0.5);
   border-radius: 8rpx;
 
   .sc-delete, .sc-rotate, .sc-scale {

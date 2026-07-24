@@ -75,6 +75,8 @@ export default function Editor() {
   const [photoOpen, setPhotoOpen] = useState(false)
   const [photos, setPhotos] = useState<{ id: string; src: string; x: number; y: number }[]>([])
   const [selectedId, setSelectedId] = useState('')
+  const [holdingId, setHoldingId] = useState('')  // 正在按住拖动的照片贴纸 id
+  const [deletingId, setDeletingId] = useState('')  // 爆炸删除动画中的 id
   const dragRef = useRef({ id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 })
   const [texts, setTexts] = useState<{ id: string; text: string; family: string; x: number; y: number; chars: { c: string; r: number; s: number; dy: number }[] }[]>([])
   const [editingTextId, setEditingTextId] = useState('')
@@ -94,7 +96,11 @@ export default function Editor() {
     const info = Taro.getWindowInfo?.() || Taro.getSystemInfoSync()
     setStatusBarHeight(info.statusBarHeight || 20)
     const paperId = router.params.paper
-    if (paperId) {
+    if (paperId === 'photo') {
+      // 照片模式：用照片当纸
+      const src = decodeURIComponent(router.params.src || '')
+      if (src) setPaperSrc(src)
+    } else if (paperId) {
       const p = getPaperById(paperId)
       if (p) setPaperSrc(p.src)
     }
@@ -300,11 +306,12 @@ export default function Editor() {
     Taro.showToast({ title: '该工具开发中', icon: 'none' })
   }
 
-  // 贴纸拖动
+  // 照片贴纸拖动
   const onStickerStart = (id: string, e: any) => {
     const t = e.touches[0]
     const ph = photos.find(p => p.id === id)
     setSelectedId(id)
+    setHoldingId(id)
     dragRef.current = { id, startX: t.clientX, startY: t.clientY, baseX: ph ? ph.x : 0, baseY: ph ? ph.y : 0 }
   }
   const onStickerMove = (e: any) => {
@@ -313,9 +320,26 @@ export default function Editor() {
     const t = e.touches[0]
     const nx = d.baseX + (t.clientX - d.startX)
     const ny = d.baseY + (t.clientY - d.startY)
+    dragRef.current = { ...d, lastX: nx, lastY: ny }
     setPhotos(prev => prev.map(p => p.id === d.id ? { ...p, x: nx, y: ny } : p))
   }
-  const onStickerEnd = () => { dragRef.current = { id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 } }
+  const onStickerEnd = () => {
+    const d = dragRef.current
+    if (d.id) {
+      const info = Taro.getWindowInfo?.() || Taro.getSystemInfoSync()
+      const ww = info.windowWidth
+      const wh = info.windowHeight
+      const lx = (d as any).lastX ?? 0
+      const ly = (d as any).lastY ?? 0
+      if (lx < -100 || ly < -100 || lx > ww - 100 || ly > wh - 100) {
+        setPhotos(prev => prev.filter(p => p.id !== d.id))
+        setSelectedId('')
+        Taro.showToast({ title: '已移除', icon: 'none', duration: 1200 })
+      }
+    }
+    setHoldingId('')
+    dragRef.current = { id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 }
+  }
 
   // 拼贴诗：点诗区进入编辑模式，编辑模式下拖动单个碎片
   const fragDragRef = useRef({ id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 })
@@ -434,7 +458,12 @@ export default function Editor() {
 
         {/* 纸张 + 贴在纸上的拼贴诗 */}
         <View className='canvas-wrap'
+          onClick={() => {
+            // 点击空白处取消选中
+            if (!holdingId) setSelectedId('')
+          }}
           onTouchMove={(e) => {
+            if (poemEdit) return
             const op = stickerOpRef.current
             if (!op.id || op.mode === 'none') return
             const t = e.touches[0]
@@ -489,7 +518,6 @@ export default function Editor() {
                         transform: `translate(${f.offsetX}px, ${f.offsetY}px) rotate(${f.rotate}deg)`,
                         zIndex: (f.offsetX || f.offsetY) ? 3 : 1
                       }}
-                      catchMove={poemEdit}
                       onTouchStart={(e) => onFragStart(f.id, e)}
                       onTouchMove={onFragMove}
                       onTouchEnd={onFragEnd}
@@ -511,31 +539,42 @@ export default function Editor() {
             return (
               <View
                 key={sk.id}
-                className={`photo-wrap ${isSel ? 'selected' : ''}`}
+                className={`photo-wrap ${isSel ? 'selected' : ''} ${holdingId === sk.id ? 'holding' : ''}`}
                 style={{ left: `${sk.x}px`, top: `${sk.y}px`, width: '240rpx' }}
                 catchMove
                 onTouchStart={(e) => {
                   const t = e.touches[0]
                   setSelectedId(sk.id)
+                  setHoldingId(sk.id)
                   dragRef.current = { id: sk.id, startX: t.clientX, startY: t.clientY, baseX: sk.x, baseY: sk.y }
                 }}
                 onTouchMove={(e) => {
                   const d = dragRef.current
                   if (!d.id || d.id !== sk.id) return
                   const t = e.touches[0]
-                  setStickers(prev => prev.map(p => p.id === d.id ? { ...p, x: d.baseX + (t.clientX - d.startX), y: d.baseY + (t.clientY - d.startY) } : p))
+                  const nx = d.baseX + (t.clientX - d.startX)
+                  const ny = d.baseY + (t.clientY - d.startY)
+                  dragRef.current = { ...d, lastX: nx, lastY: ny }
+                  setStickers(prev => prev.map(p => p.id === d.id ? { ...p, x: nx, y: ny } : p))
                 }}
-                onTouchEnd={() => { dragRef.current = { id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 } }}
+                onTouchEnd={() => {
+                  const d = dragRef.current
+                  if (d.id) {
+                    const info = Taro.getWindowInfo?.() || Taro.getSystemInfoSync()
+                    const ww = info.windowWidth
+                    const wh = info.windowHeight
+                    const lx = (d as any).lastX ?? 0
+                    const ly = (d as any).lastY ?? 0
+                    if (lx < -100 || ly < -100 || lx > ww - 100 || ly > wh - 100) {
+                      setStickers(prev => prev.filter(p => p.id !== d.id))
+                      setSelectedId('')
+                      Taro.showToast({ title: '已移除', icon: 'none', duration: 1200 })
+                    }
+                  }
+                  setHoldingId(''); dragRef.current = { id: '', startX: 0, startY: 0, baseX: 0, baseY: 0 }
+                }}
               >
                 <Image className='photo-on-paper' src={sk.src} mode='widthFix' />
-                {isSel && (
-                  <View className='sticker-controls'>
-                    <View className='sc-delete' catchMove onClick={() => {
-                      setStickers(prev => prev.filter(p => p.id !== sk.id))
-                      setSelectedId('')
-                    }}>×</View>
-                  </View>
-                )}
               </View>
             )
           })}
@@ -549,7 +588,7 @@ export default function Editor() {
           {photos.map((ph) => (
             <View
               key={ph.id}
-              className={`photo-wrap ${selectedId === ph.id ? 'selected' : ''}`}
+              className={`photo-wrap ${selectedId === ph.id ? 'selected' : ''} ${holdingId === ph.id ? 'holding' : ''}`}
               style={{ left: `${ph.x}px`, top: `${ph.y}px` }}
               catchMove
               onTouchStart={(e) => onStickerStart(ph.id, e)}

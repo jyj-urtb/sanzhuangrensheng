@@ -18,7 +18,7 @@ export default function CollageDialog({ open, onClose, onGenerated }: Props) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
-  const [mode, setMode] = useState<Mode>('ai')
+  const [mode, setMode] = useState<Mode>('raw')
 
   const splitRaw = (text: string): string[] =>
     text.split(/[\n\r，。！？、；：,.!?;:\s]+/).map(s => s.trim()).filter(Boolean)
